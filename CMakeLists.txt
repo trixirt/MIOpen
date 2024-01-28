@@ -145,6 +145,32 @@ option(MIOPEN_EMBED_BINCACHE "Embed Binary Cache or KDB" Off)
 option(MIOPEN_EMBED_BUILD "Build with the set of embed flags." Off)
 option(MIOPEN_DISABLE_USERDB "Disable user database access" ${MIOPEN_EMBED_BUILD})
 
+#
+# Seperate linking jobs from compiling
+# Too many concurrent linking jobs can break the build
+# Copied from LLVM
+set(MIOPEN_PARALLEL_LINK_JOBS "" CACHE STRING
+  "Define the maximum number of concurrent link jobs (Ninja only).")
+if(CMAKE_GENERATOR MATCHES "Ninja")
+  if(MIOPEN_PARALLEL_LINK_JOBS)
+    set_property(GLOBAL APPEND PROPERTY JOB_POOLS link_job_pool=${MIOPEN_PARALLEL_LINK_JOBS})
+    set(CMAKE_JOB_POOL_LINK link_job_pool)
+  endif()
+elseif(MIOPEN_PARALLEL_LINK_JOBS)
+  message(WARNING "Job pooling is only available with Ninja generators.")
+endif()
+
+set(MIOPEN_PARALLEL_COMPILE_JOBS "" CACHE STRING
+  "Define the maximum number of concurrent compile jobs (Ninja only).")
+if(CMAKE_GENERATOR MATCHES "Ninja")
+  if(MIOPEN_PARALLEL_COMPILE_JOBS)
+    set_property(GLOBAL APPEND PROPERTY JOB_POOLS compile_job_pool=${MIOPEN_PARALLEL_COMPILE_JOBS})
+    set(CMAKE_JOB_POOL_COMPILE compile_job_pool)
+  endif()
+elseif(MIOPEN_PARALLEL_COMPILE_JOBS)
+  message(WARNING "Job pooling is only available with Ninja generators.")
+endif()
+
 # MIOPEN_USE_HIP_KERNELS is a Workaround for COMgr issues
 if(MIOPEN_EMBED_BUILD)
     option(BUILD_SHARED_LIBS "Build as a shared library" Off)
