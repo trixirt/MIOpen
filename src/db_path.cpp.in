@@ -72,7 +72,7 @@ std::string GetSystemDbPath()
 #else
     {
         // Get the module path and construct the db path
-        static const auto lib_path = (GetLibPath().parent_path() / "share/miopen/db/").string();
+        static const auto lib_path = "/usr/share/miopen/db/";
         return lib_path;
     }
 #endif
